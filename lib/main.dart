@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -50,14 +54,42 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  String? newPath = '';
+  PackageInfo? _info;
+  Directory? _directory;
+  File? _saveFile;
+
+  Dio _dio = Dio();
 
   void _incrementCounter() async {
-    final directory = await getApplicationSupportDirectory();
-    print("directory ${directory.path}");
+    newPath = '/';
+    _directory = await getApplicationSupportDirectory();
+    print("directory ${_directory!.path}");
+    _info = await PackageInfo.fromPlatform();
+    debugPrint(_info!.packageName.runtimeType.toString());
+    List tmpDir = _directory!.path.split("/");
 
-    List tmpDir = directory.path.split("/");
+    for (int i = 0; i < tmpDir.length; i++){
+      if (tmpDir[i] != ""){
+        if (tmpDir[i] == _info!.packageName){
+          newPath = "$newPath${''}bitriel";
+          break;
+        } else {
+          newPath = '${newPath! + tmpDir[i]}/';
+          print("index $i ${newPath}");
+        }
+      }
+    }
 
+    print("newPath $newPath");
+
+    if (await _directory!.exists()){
+      _saveFile = File(newPath!);
+    }
     
+    await _dio.download('https://github.com/DaveatCor/bitriel_data/blob/main/assets/json/supported_contract.json', _saveFile).then((value) {
+      print("Value $value");
+    });
     // print
     // setState(() {
     //   // This call to setState tells the Flutter framework that something has
