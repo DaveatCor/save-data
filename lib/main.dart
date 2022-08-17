@@ -53,6 +53,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   int _counter = 0;
   String? newPath = '';
   PackageInfo? _info;
@@ -62,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Dio _dio = Dio();
 
   void _incrementCounter() async {
+
     newPath = '/';
     _directory = await getApplicationSupportDirectory();
     print("directory ${_directory!.path}");
@@ -71,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     for (int i = 0; i < tmpDir.length; i++){
       if (tmpDir[i] != ""){
-        if (tmpDir[i] == _info!.packageName){
+        if (tmpDir[i] == "files"){
           newPath = "$newPath${''}bitriel";
           break;
         } else {
@@ -86,10 +88,19 @@ class _MyHomePageState extends State<MyHomePage> {
     if (await _directory!.exists()){
       _saveFile = File(newPath!);
     }
+
+    _directory = Directory(newPath!);
+
+    print("_directory ${_directory!.path}");
     
-    await _dio.download('https://github.com/DaveatCor/bitriel_data/blob/main/assets/json/supported_contract.json', _saveFile).then((value) {
-      print("Value $value");
-    });
+    try {
+
+      await _dio.download('https://raw.githubusercontent.com/DaveatCor/bitriel_data/main/assets/FingerPrint1.png', _directory!.path).then((value) {
+        print("Value ${value.data}");
+      });
+    } catch (e) {
+      print("Error _dio $e");
+    }
     // print
     // setState(() {
     //   // This call to setState tells the Flutter framework that something has
@@ -99,6 +110,12 @@ class _MyHomePageState extends State<MyHomePage> {
     //   // called again, and so nothing would appear to happen.
     //   _counter++;
     // });
+  }
+
+  void directoryPath() async {
+    print("directoryPath");
+    _directory = Directory('/data/user/0/com.example.store_file_into_asset/bitriel');
+    print(await _directory!.exists());
   }
 
   @override
@@ -142,6 +159,13 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+
+            ElevatedButton(
+              onPressed: () {
+                directoryPath();
+              }, 
+              child: Text("Get directoryPath")
+            )
           ],
         ),
       ),

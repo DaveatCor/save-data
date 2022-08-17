@@ -37,6 +37,7 @@ dependencies:
   path_provider:
   package_info_plus:
   dio:
+  rename:
 
 dev_dependencies:
   flutter_test:
