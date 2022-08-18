@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -64,43 +65,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() async {
 
-    newPath = '/';
-    _directory = await getApplicationSupportDirectory();
-    print("directory ${_directory!.path}");
-    _info = await PackageInfo.fromPlatform();
-    debugPrint(_info!.packageName.runtimeType.toString());
-    List tmpDir = _directory!.path.split("/");
-
-    for (int i = 0; i < tmpDir.length; i++){
-      if (tmpDir[i] != ""){
-        if (tmpDir[i] == "files"){
-          newPath = "$newPath${''}bitriel";
-          break;
-        } else {
-          newPath = '${newPath! + tmpDir[i]}/';
-          print("index $i ${newPath}");
-        }
+    await Permission.storage.request().then((value) async {
+      print("Request permission storage $value");
+      if (value.isGranted){
+        await createDirectory();
       }
-    }
-
-    print("newPath $newPath");
-
-    if (await _directory!.exists()){
-      _saveFile = File(newPath!);
-    }
-
-    _directory = Directory(newPath!);
-
-    print("_directory ${_directory!.path}");
-    
-    try {
-
-      await _dio.download('https://raw.githubusercontent.com/DaveatCor/bitriel_data/main/assets/FingerPrint1.png', _directory!.path).then((value) {
-        print("Value ${value.data}");
-      });
-    } catch (e) {
-      print("Error _dio $e");
-    }
+    });
     // print
     // setState(() {
     //   // This call to setState tells the Flutter framework that something has
@@ -110,6 +80,52 @@ class _MyHomePageState extends State<MyHomePage> {
     //   // called again, and so nothing would appear to happen.
     //   _counter++;
     // });
+  }
+
+  Future<void> createDirectory() async {
+    newPath = '/';
+    _directory = await getApplicationDocumentsDirectory();
+    print("directory ${_directory!.path}");
+    _info = await PackageInfo.fromPlatform();
+    // List tmpDir = _directory!.path.split("/");
+
+    // for (int i = 0; i < tmpDir.length; i++){
+    //   if (tmpDir[i] != ""){
+    //     if (tmpDir[i] == "files"){
+    //       newPath = "${newPath! + tmpDir[i]}${'/'}bitriel";
+    //       break;
+    //     } else {
+    //       newPath = '${newPath! + tmpDir[i]}/';
+    //       print("index $i ${newPath}");
+    //     }
+    //   }
+    // }
+
+    newPath = "${_directory!.path}/bitriel/";
+
+    print("newPath $newPath");
+
+    _directory = Directory(newPath!);
+
+    if(await _directory!.exists() == false) _directory!.create(recursive: true);
+
+    print("_directory ${_directory!.path}");
+
+    print("await _directory!.exists() ${await _directory!.exists()}");
+
+    // if (await _directory!.exists()){
+    //   _saveFile = File(newPath!);
+      
+    // }
+    
+    // try {
+
+    //   await _dio.download('https://raw.githubusercontent.com/DaveatCor/bitriel_data/main/assets/FingerPrint1.png', _directory!.path).then((value) {
+    //     print("Value ${value.data}");
+    //   });
+    // } catch (e) {
+    //   print("Error _dio $e");
+    // }
   }
 
   void directoryPath() async {

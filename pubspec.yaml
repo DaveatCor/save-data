@@ -38,6 +38,7 @@ dependencies:
   package_info_plus:
   dio:
   rename:
+  permission_handler:
 
 dev_dependencies:
   flutter_test:
